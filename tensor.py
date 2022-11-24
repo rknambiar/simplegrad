@@ -28,7 +28,6 @@ class Tensor:
         output.parents.extend([self, o])
         
         def backward():
-            print(f"add backward node: {output.name}")
             self.grad += output.grad
             o.grad += output.grad
 
@@ -41,7 +40,6 @@ class Tensor:
         output.parents.extend([self, o])
         
         def backward():
-            print(f"mul backward node: {output.name}")
             self.grad += output.grad * o.value
             o.grad += output.grad * self.value
 
@@ -49,4 +47,23 @@ class Tensor:
         
         return output
 
-    
+    def backward(self) -> None:
+        """Computes gradient from this tensor backwards"""
+        def _topsort(t):
+            visited = set()
+            output = []
+            def _run_topsort(t):
+                if t not in visited:
+                    visited.add(t)
+                    for parent in t.parents:
+                        _run_topsort(parent)
+                    output.append(t)
+            
+            _run_topsort(t)
+            return output
+        
+        topsort = _topsort(self)
+
+        self.grad = 1
+        for t in reversed(topsort):
+            t.backward_fun()

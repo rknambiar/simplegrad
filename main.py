@@ -31,31 +31,9 @@ def draw(tensor):
         f.node(node.name, label)
 
     for edge in edges:
-        f.edge(edge[0], edge[1], fontcolor='red')
+        f.edge(edge[0], edge[1], str(edge[2]), fontcolor='red')
 
     f.view()
-
-def backward(tensor: Tensor):
-    """Computes gradient from this tensor backwards"""
-    def _topsort(t):
-        visited = set()
-        output = []
-        def _run_topsort(t):
-            if t not in visited:
-                visited.add(t)
-                for parent in t.parents:
-                    _run_topsort(parent)
-                output.append(t)
-        
-        _run_topsort(t)
-        return output
-    
-    topsort = _topsort(tensor)
-
-    tensor.grad = 1
-    for t in reversed(topsort):
-        t.backward_fun()
-
 
 def main():
     t1 = Tensor(3.4)
@@ -65,7 +43,7 @@ def main():
     t4 = t1 + t2
     t5 = t3 * t4
 
-    backward(t5)
+    t5.backward()
     draw(t5)
 
 if __name__ == "__main__":
