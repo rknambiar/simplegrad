@@ -78,17 +78,17 @@ class Tensor:
         for t in reversed(topsort):
             t.backward_fun()
 
-    def __radd__(self, o):
-        return self + o
+    def __radd__(self, obj2):
+        return self + obj2
 
-    def __rmul__(self, o):
-        return self * o
+    def __rmul__(self, obj2):
+        return self * obj2
 
-    def __sub__(self, o):
-        return self + (-o)
+    def __sub__(self, obj2):
+        return self + (-obj2)
 
-    def __rsub__(self, o):
-        return o + (-self)
+    def __rsub__(self, obj2):
+        return obj2 + (-self)
 
     def __neg__(self):
         return self * -1
