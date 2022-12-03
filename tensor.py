@@ -21,30 +21,40 @@ class Tensor:
         return str(self.value)
         
     def __repr__(self) -> str:
-        return f"Tensor: {self.name} value: {self.value}"
+        return f"{self.name}: {self.value:.4f}"
 
-    def __add__(self, o) -> Tensor:
-        output = Tensor(self.value + o.value, op="add")
-        output.parents.extend([self, o])
-        
+    def __add__(self, obj2) -> Tensor:
+        obj2 = obj2 if isinstance(obj2, Tensor) else Tensor(obj2)
+        output = Tensor(self.value + obj2.value, op="+")
+        output.parents.extend([self, obj2])
+
         def backward():
             self.grad += output.grad
-            o.grad += output.grad
+            obj2.grad += output.grad
 
         output.backward_fun = backward
-
         return output
 
-    def __mul__(self, o) -> Tensor:
-        output = Tensor(self.value * o.value, op="mul")
-        output.parents.extend([self, o])
-        
+    def __mul__(self, obj2) -> Tensor:
+        obj2 = obj2 if isinstance(obj2, Tensor) else Tensor(obj2)
+        output = Tensor(self.value * obj2.value, op="*")
+        output.parents.extend([self, obj2])
+
         def backward():
-            self.grad += output.grad * o.value
-            o.grad += output.grad * self.value
+            self.grad += obj2.value * output.grad 
+            obj2.grad += self.value * output.grad
 
         output.backward_fun = backward
-        
+        return output
+
+    def relu(self,) -> Tensor:
+        output = Tensor(0 if self.value < 0 else self.value, op='ReLU')
+        output.parents.extend([self, ])
+
+        def backward():
+            self.grad += (output.value > 0) * output.grad
+
+        output.backward_fun = backward
         return output
 
     def backward(self) -> None:
@@ -67,3 +77,18 @@ class Tensor:
         self.grad = 1
         for t in reversed(topsort):
             t.backward_fun()
+
+    def __radd__(self, o):
+        return self + o
+
+    def __rmul__(self, o):
+        return self * o
+
+    def __sub__(self, o):
+        return self + (-o)
+
+    def __rsub__(self, o):
+        return o + (-self)
+
+    def __neg__(self):
+        return self * -1
