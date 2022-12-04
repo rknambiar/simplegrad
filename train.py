@@ -2,9 +2,10 @@ import random
 from sklearn.datasets import make_moons
 
 from layer import MLP
+from utils import draw_contour_plot
 
 BATCH_SIZE = 100
-NUM_EPOCS = 200
+NUM_EPOCS = 150
 
 def main():
     dataset = make_moons(noise=0.1, random_state=60)
@@ -41,6 +42,8 @@ def main():
         learning_rate = 0.03
         for weight in network.parameters():
             weight.value -= learning_rate * weight.grad
+
+        draw_contour_plot(network, x, y, epoch)
 
         print(f"Epoch: {epoch}, loss: {loss}, accuracy: {accuracy}")
 
